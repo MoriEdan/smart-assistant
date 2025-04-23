@@ -1,0 +1,22 @@
+{
+    "api_keys": {
+        "google_gemini": "your-gemini-api-key-here"
+    },
+    "speech_recognition": {
+        "primary_engine": "online",
+        "backup_engine": "vosk",
+        "language": "tr-TR"
+    },
+    "web_automation": {
+        "primary_engine": "browser-use",
+        "backup_engine": "playwright"
+    },
+    "logging": {
+        "level": "INFO",
+        "file_path": "data/logs/assistant.log"
+    },
+    "plugins": {
+        "enabled": true,
+        "directory": "src/plugins/implementations"
+    }
+} 
