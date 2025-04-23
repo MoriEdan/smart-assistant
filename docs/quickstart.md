@@ -7,6 +7,7 @@ This guide will help you get started with the Smart AI Assistant quickly.
 - Python 3.8 or higher
 - pip (Python package manager)
 - Git (optional, for cloning the repository)
+- Microphone (for voice mode)
 
 ## Installation Steps
 
@@ -54,8 +55,24 @@ This guide will help you get started with the Smart AI Assistant quickly.
    python main.py
    ```
 
-2. **Interact with the Assistant**
-   - Type your questions or commands
+2. **Voice Mode Activation**
+   - The assistant starts in text mode by default
+   - To activate voice mode, say one of these keywords:
+     - "hey asistan"
+     - "merhaba asistan"
+     - "asistan"
+   - The assistant will respond with a welcome message
+
+3. **Mode Switching**
+   - To switch to voice mode:
+     - Say or type: "sesli mod" or "sesli dinleme modu"
+   - To switch to text mode:
+     - Say or type: "metin modu" or "yazılı mod"
+   - The assistant will confirm the mode change
+
+4. **Interact with the Assistant**
+   - In text mode: Type your questions or commands
+   - In voice mode: Speak your questions or commands
    - The assistant will respond in Turkish
    - Type 'exit' to quit
 
@@ -87,6 +104,13 @@ Program başlat
 Salsa derslerini göster
 ```
 
+### Voice Commands
+```
+"Hey asistan, bugün hava nasıl?"
+"Merhaba asistan, müzik çal"
+"Asistan, dosya oluştur"
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -99,19 +123,16 @@ Salsa derslerini göster
    - Check your `.env` file for correct API keys
    - Ensure you have valid API keys for all services
 
-3. **Speech Recognition Issues**
-   - Check microphone permissions
-   - Verify Vosk model path in configuration
+3. **Voice Recognition Issues**
+   - Check microphone settings and permissions
+   - Ensure proper language configuration in config.json
+   - Verify Vosk model installation if using offline recognition
+   - Try speaking clearly and at a normal pace
+   - Check if the activation keywords are recognized
+   - Verify that the correct mode is active
 
-### Getting Help
-
-- Check the [documentation](docs/deepdive.md) for detailed information
-- Open an issue on GitHub for bugs or feature requests
-- Contact support for additional help
-
-## Next Steps
-
-- Read the [detailed documentation](docs/deepdive.md)
-- Explore plugin development
-- Customize the assistant for your needs
-- Contribute to the project 
+4. **Mode Switching Problems**
+   - Ensure you're using the correct mode switching commands
+   - Check if the assistant confirms mode changes
+   - Verify microphone is working in voice mode
+   - Test both voice and text commands in each mode

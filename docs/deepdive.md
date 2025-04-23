@@ -36,11 +36,29 @@ Handles different types of user input:
 - Text input processing
 - Speech recognition (online and offline)
 - Language detection and processing
+- Voice activation and mode switching
 
 #### Key Features:
 - Dual-engine speech recognition (online/offline)
 - Turkish language support
+- Voice activation keywords: "hey asistan", "merhaba asistan", "asistan"
+- Mode switching between voice and text modes
+- Dynamic welcome messages based on current mode
 - Error handling and fallback mechanisms
+
+#### Voice Activation:
+- Keywords: "hey asistan", "merhaba asistan", "asistan"
+- Activation triggers voice mode
+- Confirmation message on successful activation
+- Fallback to text mode if activation fails
+
+#### Mode Switching:
+- Voice Mode Activation:
+  - Command: "sesli mod" or "sesli dinleme modu"
+  - Welcome Message: "Merhaba! Sesli dinleme modunda çalışıyorum. Size nasıl yardımcı olabilirim?"
+- Text Mode Activation:
+  - Command: "metin modu" or "yazılı mod"
+  - Welcome Message: "Merhaba! Metin modunda çalışıyorum. Komutlarınızı yazabilirsiniz."
 
 #### Configuration:
 ```json
@@ -48,7 +66,11 @@ Handles different types of user input:
     "speech_recognition": {
         "primary_engine": "online",
         "backup_engine": "vosk",
-        "language": "tr-TR"
+        "language": "tr-TR",
+        "activation_keywords": ["hey asistan", "merhaba asistan", "asistan"],
+        "vosk_model_path": "path/to/vosk/model",
+        "sample_rate": 16000,
+        "channels": 2
     }
 }
 ```
@@ -59,12 +81,14 @@ Analyzes user input to determine intent and required actions:
 - Uses Google Gemini API for natural language understanding
 - Classifies tasks into different categories
 - Extracts parameters and context
+- Handles both voice and text input
 
 #### Task Categories:
 - Web automation
 - System operations
 - Plugin-specific tasks
 - General conversation
+- Mode switching commands
 
 ### 3. Web Automator (`web_automator.py`)
 
@@ -98,210 +122,112 @@ Manages local system operations:
 
 Extensible architecture for domain-specific functionality:
 - Base plugin interface
-- Plugin manager
-- Automatic loading
-- Dependency management
-
-#### Plugin Structure:
-```python
-class MyPlugin(PluginBase):
-    def __init__(self, config):
-        super().__init__(config)
-    
-    async def initialize(self):
-        # Setup code
-    
-    async def process(self, input_data):
-        # Processing logic
-    
-    async def cleanup(self):
-        # Cleanup code
-```
+- Plugin loading and management
+- Event handling system
+- Configuration management
 
 ## Advanced Configuration
 
-### Environment Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| GOOGLE_GEMINI_API_KEY | Google Gemini API key | your-api-key |
-| SPEECH_RECOGNITION_LANGUAGE | Default language | tr-TR |
-| VOSK_MODEL_PATH | Path to Vosk model | ./models/vosk |
-| LOG_LEVEL | Logging level | INFO |
-| LOG_FILE | Log file path | ./logs/assistant.log |
-
-### Configuration File Structure
+### Voice Recognition Settings
 
 ```json
 {
-    "api_keys": {
-        "google_gemini": "your-api-key"
-    },
     "speech_recognition": {
         "primary_engine": "online",
         "backup_engine": "vosk",
-        "language": "tr-TR"
-    },
-    "web_automation": {
-        "primary_engine": "browser-use",
-        "backup_engine": "playwright",
-        "timeout": 30
-    },
-    "plugins": {
-        "enabled": true,
-        "directory": "./plugins"
+        "language": "tr-TR",
+        "activation_keywords": ["hey asistan", "merhaba asistan", "asistan"],
+        "vosk_model_path": "path/to/vosk/model",
+        "sample_rate": 16000,
+        "channels": 2,
+        "energy_threshold": 300,
+        "dynamic_energy_threshold": True,
+        "pause_threshold": 0.8
     }
 }
 ```
 
-## Plugin Development
-
-### Creating a New Plugin
-
-1. Create a new Python file in `src/plugins/implementations/`
-2. Implement the `PluginBase` interface
-3. Define your plugin's functionality
-4. Add configuration options if needed
-
-### Example Plugin Structure
-
-```python
-from ..plugin_base import PluginBase
-
-class MyPlugin(PluginBase):
-    def __init__(self, config):
-        super().__init__(config)
-        self.name = "MyPlugin"
-    
-    async def initialize(self):
-        # Initialize resources
-        pass
-    
-    async def process(self, input_data):
-        # Process input and return result
-        return {
-            "success": True,
-            "result": "Processed data"
-        }
-    
-    async def cleanup(self):
-        # Clean up resources
-        pass
-```
-
-### Plugin Configuration
-
-Plugins can have their own configuration section in `config.json`:
+### Mode Configuration
 
 ```json
 {
-    "plugins": {
-        "my_plugin": {
-            "enabled": true,
-            "settings": {
-                "option1": "value1",
-                "option2": "value2"
-            }
+    "modes": {
+        "voice": {
+            "welcome_message": "Merhaba! Sesli dinleme modunda çalışıyorum. Size nasıl yardımcı olabilirim?",
+            "activation_commands": ["sesli mod", "sesli dinleme modu"],
+            "deactivation_timeout": 300,
+            "confirmation_sound": true
+        },
+        "text": {
+            "welcome_message": "Merhaba! Metin modunda çalışıyorum. Komutlarınızı yazabilirsiniz.",
+            "activation_commands": ["metin modu", "yazılı mod"]
         }
     }
 }
 ```
 
-## Security Considerations
+## Development Guidelines
 
-1. **API Key Management**
-   - Store API keys in environment variables
-   - Never commit sensitive data to version control
-   - Use secure key rotation
+### Adding New Features
 
-2. **System Operations**
-   - Validate all commands before execution
-   - Implement permission checks
-   - Use sandboxed environments when possible
+1. **Voice Activation Keywords**
+   - Add new keywords to `activation_keywords` list in config
+   - Update documentation with new keywords
+   - Test with different voice inputs
+   - Consider adding language-specific variations
 
-3. **Web Automation**
-   - Validate URLs and inputs
-   - Implement timeout mechanisms
-   - Handle sensitive data securely
+2. **Mode Switching**
+   - Add new mode commands to configuration
+   - Implement mode-specific welcome messages
+   - Update UI to reflect current mode
+   - Add mode transition animations/sounds
+   - Implement mode persistence
 
-## Performance Optimization
+3. **Speech Recognition**
+   - Configure Vosk model path
+   - Set appropriate sample rate and channels
+   - Test with different audio inputs
+   - Implement noise reduction
+   - Add support for multiple languages
 
-1. **Caching**
-   - Implement response caching
-   - Cache frequently accessed data
-   - Use appropriate cache invalidation
+### Testing
 
-2. **Resource Management**
-   - Clean up resources properly
-   - Implement connection pooling
-   - Monitor memory usage
+1. **Voice Recognition Testing**
+   - Test with different activation keywords
+   - Verify mode switching functionality
+   - Check welcome messages for each mode
+   - Test with background noise
+   - Verify fallback mechanisms
 
-3. **Async Operations**
-   - Use async/await for I/O operations
-   - Implement proper error handling
-   - Manage concurrent operations
+2. **Error Handling**
+   - Test offline recognition fallback
+   - Verify error messages
+   - Check recovery from failed states
+   - Test microphone disconnection
+   - Verify mode persistence
 
 ## Troubleshooting
 
-### Common Issues
+### Voice Recognition Issues
 
-1. **Speech Recognition Problems**
-   - Check microphone permissions
+1. **Activation Not Working**
+   - Check microphone settings and permissions
+   - Verify activation keywords in config
+   - Test with different voice inputs
+   - Check audio device configuration
+   - Verify language settings
+
+2. **Mode Switching Problems**
+   - Verify mode commands in config
+   - Check welcome message configuration
+   - Test mode persistence
+   - Verify microphone state
+   - Check for conflicting commands
+
+3. **Speech Recognition Errors**
    - Verify Vosk model installation
-   - Test with different audio sources
-
-2. **Web Automation Failures**
-   - Check network connectivity
-   - Verify selectors and timing
-   - Monitor for rate limiting
-
-3. **Plugin Loading Issues**
-   - Check plugin dependencies
-   - Verify configuration
-   - Review error logs
-
-### Debugging Tools
-
-1. **Logging**
-   - Use different log levels
-   - Implement structured logging
-   - Monitor error patterns
-
-2. **Monitoring**
-   - Track performance metrics
-   - Monitor resource usage
-   - Set up alerts
-
-## Best Practices
-
-1. **Code Organization**
-   - Follow PEP 8 style guide
-   - Use type hints
-   - Document code thoroughly
-
-2. **Error Handling**
-   - Implement proper exception handling
-   - Provide meaningful error messages
-   - Log errors appropriately
-
-3. **Testing**
-   - Write unit tests
-   - Implement integration tests
-   - Use automated testing
-
-## Contributing
-
-1. **Code Style**
-   - Follow project coding standards
-   - Use consistent formatting
-   - Document new features
-
-2. **Pull Requests**
-   - Create feature branches
-   - Write clear commit messages
-   - Include tests and documentation
-
-3. **Issue Reporting**
-   - Provide detailed descriptions
-   - Include reproduction steps
-   - Share relevant logs 
+   - Check audio device configuration
+   - Test with different sample rates
+   - Verify language support
+   - Check for background noise
+   - Test with different microphones

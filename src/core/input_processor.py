@@ -5,16 +5,20 @@ import speech_recognition as sr
 from vosk import Model, KaldiRecognizer
 import json
 import wave
+from dotenv import load_dotenv
 
 class InputProcessor:
-    """Handles both text and speech input processing."""
+    """Handles both text and speech input processing with voice activation."""
     
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.speech_config = config.get('speech_recognition', {})
         self.recognizer = sr.Recognizer()
         self.vosk_model = None
+        self.voice_mode = False
+        self.activation_keywords = ["hey asistan", "merhaba asistan", "asistan"]
         self._initialize_vosk()
+        load_dotenv()
     
     def _initialize_vosk(self) -> None:
         """Initialize the Vosk model if configured."""
@@ -23,7 +27,22 @@ class InputProcessor:
             self.vosk_model = Model(model_path)
     
     async def process_text(self, text: str) -> Dict[str, Any]:
-        """Process text input."""
+        """Process text input and handle mode switching commands."""
+        if text.lower() in ["sesli mod", "sesli dinleme modu"]:
+            self.voice_mode = True
+            return {
+                'type': 'mode_switch',
+                'content': 'Sesli dinleme modu aktif. Dinliyorum...',
+                'mode': 'voice'
+            }
+        elif text.lower() in ["metin modu", "yazılı mod"]:
+            self.voice_mode = False
+            return {
+                'type': 'mode_switch',
+                'content': 'Metin modu aktif. Yazılı komutlarınızı bekliyorum.',
+                'mode': 'text'
+            }
+        
         return {
             'type': 'text',
             'content': text,
@@ -31,14 +50,25 @@ class InputProcessor:
         }
     
     async def process_speech(self, audio_data: bytes) -> Dict[str, Any]:
-        """Process speech input using primary and backup engines."""
+        """Process speech input using primary and backup engines with activation detection."""
         try:
             # Try primary engine (online)
             if self.speech_config.get('primary_engine') == 'online':
-                return await self._process_speech_online(audio_data)
+                result = await self._process_speech_online(audio_data)
+            else:
+                # Fallback to Vosk
+                result = await self._process_speech_vosk(audio_data)
             
-            # Fallback to Vosk
-            return await self._process_speech_vosk(audio_data)
+            # Check for activation keywords
+            content = result.get('content', '').lower()
+            if any(keyword in content for keyword in self.activation_keywords):
+                return {
+                    'type': 'activation',
+                    'content': content,
+                    'activated': True
+                }
+            
+            return result
         except Exception as e:
             print(f"Speech recognition error: {str(e)}")
             return {
@@ -81,4 +111,14 @@ class InputProcessor:
     def _convert_to_wav(self, audio_data: bytes) -> bytes:
         """Convert audio data to WAV format."""
         # This is a simplified version - in production, you'd want to use proper audio conversion
-        return audio_data 
+        return audio_data
+    
+    def is_voice_mode_active(self) -> bool:
+        """Check if voice mode is currently active."""
+        return self.voice_mode
+    
+    async def get_welcome_message(self) -> str:
+        """Get the appropriate welcome message based on current mode."""
+        if self.voice_mode:
+            return "Merhaba! Sesli dinleme modunda çalışıyorum. Size nasıl yardımcı olabilirim?"
+        return "Merhaba! Metin modunda çalışıyorum. Komutlarınızı yazabilirsiniz."
