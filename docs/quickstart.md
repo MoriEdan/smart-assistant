@@ -13,7 +13,7 @@ This guide will help you get started with the Smart AI Assistant quickly.
 1. **Get the Code**
    ```bash
    # Option 1: Clone the repository
-   git clone https://github.com/yourusername/smart-assistant.git
+   git clone https://github.com/MoriEdan/smart-assistant.git
    cd smart-assistant
 
    # Option 2: Download and extract the ZIP

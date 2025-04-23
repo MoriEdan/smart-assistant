@@ -35,7 +35,7 @@ A powerful and flexible AI assistant system that combines various AI capabilitie
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/smart-assistant.git
+git clone https://github.com/MoriEdan/smart-assistant.git
 cd smart-assistant
 ```
 
